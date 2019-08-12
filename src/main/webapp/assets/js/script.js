@@ -224,7 +224,7 @@ function login(){
 	})
 	.then((myJson) => {
 		window.sessionStorage.setItem("sessionToken", myJson.JWT);
-		window.location.href = "/firstapp/weather.html";
+		window.location.href = "/weather.html";
 	});
 }
 
