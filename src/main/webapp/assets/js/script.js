@@ -5,11 +5,11 @@ function initCalculator(){
 	document.querySelectorAll("#btn").forEach(input => input.addEventListener("click", function(){
 		document.getElementById("display").innerHTML += input.value;
 	}));
-	
+
 	document.getElementById("btn_eq").addEventListener("click", function(){
 		document.getElementById("display").innerHTML = eval(document.getElementById("display").innerHTML);
-	});   
-	
+	});
+
 	document.getElementById("btn_c").addEventListener("click", function(){
 		document.getElementById("display").innerHTML = "";
 	});
@@ -27,10 +27,10 @@ function initPage(){
 				document.getElementById("postal").innerHTML += myJson.postal;
 				document.getElementById("long").innerHTML += myJson.longitude;
 				document.getElementById("lat").innerHTML += myJson.latitude;
-				
+
 				sessionStorage.setItem("myJson", JSON.stringify(myJson));
 				sessionStorage.setItem("refreshTimer", new Date().getTime());
-				
+
 				showWeather();
 				loadCountries();
 			});
@@ -43,16 +43,16 @@ function initPage(){
 		document.getElementById("postal").innerHTML += myJson.postal;
 		document.getElementById("long").innerHTML += myJson.longitude;
 		document.getElementById("lat").innerHTML += myJson.latitude;
-		
+
 		sessionStorage.setItem("refreshTimer", new Date().getTime());
-		
+
 		showWeather();
 		loadCountries();
 	}
 		document.getElementById("add").addEventListener("click", function(){openModalAdd()});
 		document.getElementById("submit").addEventListener("click", function(){updateCountry()});
 		document.getElementById("submit_toevoegen").addEventListener("click", function(){addCountry()});
-		
+
 }
 
 function showWeather(){
@@ -67,16 +67,16 @@ function showWeather(){
 			document.getElementById("winddirection").innerHTML = myJson.wind.speed;
 			document.getElementById("sunup").innerHTML = msToTime(myJson.sys.sunrise);
 			document.getElementById("sundown").innerHTML = msToTime(myJson.sys.sunset);
-			
-				
+
+
 			sessionStorage.setItem("myJsonWeather", JSON.stringify(myJson));
 			sessionStorage.setItem("refreshTimerWeather", new Date().getTime());
-			
+
 			console.log("Inserted into sessionstorage");
 		});
 	} else {
 		var myJson = JSON.parse(sessionStorage.getItem("myJsonWeather"));
-		
+
 		document.getElementById("temp").innerHTML = myJson.main.temp;
 		document.getElementById("humidity").innerHTML = myJson.main.humidity;
 		document.getElementById("wind").innerHTML = myJson.wind.speed;
@@ -102,11 +102,11 @@ function msToTime(duration) {
 function loadCountries(){
 	var i = 0;
 	var landen = {};
-		fetch('/firstapp/restservices/countries')
+		fetch('/restservices/countries')
 		.then(response => response.json())
 		.then(function(myJson){
-			for(let value of myJson){							
-				
+			for(let value of myJson){
+
 				var row = document.getElementById("landen").insertRow(1);
 				var name = row.insertCell(0);
 				var capital = row.insertCell(1);
@@ -115,7 +115,7 @@ function loadCountries(){
 				var population = row.insertCell(4);
 				var update = row.insertCell(5);
 				var deletion = row.insertCell(6);
-				
+
 				name.id = value.name;
 				name.innerHTML = value.name;
 				capital.innerHTML = value.capital;
@@ -124,7 +124,7 @@ function loadCountries(){
 				population.innerHTML = value.population;
 				update.innerHTML = "<button type='button' code='" + value.code + "' class='wijzig' population='" + value.population + "' surface='" + value.surface + "' land='" + value.name + "' hoofdstad='" + value.capital + "' overheid='" + value.government + "'>Wijzigen</button>";
 				deletion.innerHTML = "<button type='button' class='delete' code='" + value.code + "'>Delete</button>";
-				
+
 
 				document.getElementById(value.name).addEventListener("click", function() {
 						showWeather(null, null, value.capital);
@@ -133,7 +133,7 @@ function loadCountries(){
 			document.querySelectorAll(".delete").forEach(del => {
 				del.addEventListener("click", function(){deleteCountry(del.getAttribute("code"));});
 			});
-			
+
 			document.querySelectorAll(".wijzig").forEach(wijz => {
 				wijz.addEventListener("click", function(){openModal(wijz.getAttribute("code"), wijz.getAttribute("land"), wijz.getAttribute("hoofdstad"), wijz.getAttribute("overheid"), wijz.getAttribute("surface"), wijz.getAttribute("population"))});
 			});
@@ -153,10 +153,10 @@ function initResult() {
 
 function deleteCountry(code){
 	console.log(code);
-	
-	fetch('/firstapp/restservices/countries/' + code, {method: 'DELETE', headers : {	'Authorization': 'Bearer ' + window.sessionStorage.getItem("sessionToken") }})
+
+	fetch('/restservices/countries/' + code, {method: 'DELETE', headers : {	'Authorization': 'Bearer ' + window.sessionStorage.getItem("sessionToken") }})
 		.then((response) => {
-			if (response.status == 200) { 
+			if (response.status == 200) {
 				console.log("verwijderd");
 				location.reload();
 			}
@@ -165,25 +165,25 @@ function deleteCountry(code){
 
 function updateCountry(){
 	var code = document.getElementById("code").value;
-	var formData = new FormData(document.querySelector("#wijzigen"));		
+	var formData = new FormData(document.querySelector("#wijzigen"));
 	var encData = new URLSearchParams(formData.entries());
-	
-	fetch("/firstapp/restservices/countries/" + code, {method: 'PUT', body: encData, headers : {	'Authorization': 'Bearer ' + window.sessionStorage.getItem("sessionToken") }})
+
+	fetch("/restservices/countries/" + code, {method: 'PUT', body: encData, headers : {	'Authorization': 'Bearer ' + window.sessionStorage.getItem("sessionToken") }})
 	.then((myJson) => {
 		console.log(myJson);
 	});
-	
+
 	modal.style.display = "none";
 	location.reload();
 }
 
 function addCountry(){
-	var formData = new FormData(document.querySelector("#toevoegen"));		
+	var formData = new FormData(document.querySelector("#toevoegen"));
 	var encData = new URLSearchParams(formData.entries());
-	
-	fetch('/firstapp/restservices/countries', {method: 'POST', body: encData, headers : {	'Authorization': 'Bearer ' + window.sessionStorage.getItem("sessionToken") }})
+
+	fetch('/restservices/countries', {method: 'POST', body: encData, headers : {	'Authorization': 'Bearer ' + window.sessionStorage.getItem("sessionToken") }})
 	.then((response) => {
-		if (response.status == 402) { 
+		if (response.status == 402) {
 			console.log("Error, fout");
 		}
 		console.log(response);
@@ -213,9 +213,9 @@ function login(){
 	var formData = new FormData(document.querySelector("#login_form"));
 	var encData = new URLSearchParams(formData.entries());
 	document.querySelector("#error").innerHTML = "";
-	
-	fetch('/firstapp/restservices/authentication', {method: 'POST', body: encData, fetchoptions})
-	.then((response) => { 
+
+	fetch('/restservices/authentication', {method: 'POST', body: encData, fetchoptions})
+	.then((response) => {
 		if (response.ok) {
 			return response.json();
 		} else {
@@ -226,7 +226,7 @@ function login(){
 		window.sessionStorage.setItem("sessionToken", myJson.JWT);
 		window.location.href = "/firstapp/weather.html";
 	});
-} 
+}
 
 //Get the modal
 var modal = document.getElementById("myModal");
